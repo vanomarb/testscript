@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@font-face {
+    font-family: "blambot";
+    src: url("/fonts/blambot/blambotcasual.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "blambot-bold";
+    src: url("/fonts/blambot/blambotcasualbold.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "blambot-bold-italic";
+    src: url("/fonts/blambot/blambotcasualbolditalic.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "blambot-italic";
+    src: url("/fonts/blambot/blambotcasualitalic.ttf") format("truetype");
+}
