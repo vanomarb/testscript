@@ -37,7 +37,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const ocrData = await ocrResponse.json();
         console.log("✅ OCR completed:", ocrData);
+        //  image = await loadImageWithProxy(image.src);
 
+        // intecept ocrData img_url to proxy images through our server
+        // jsdata = ocrData.map(item => {
+        //     if (item.img_url.startsWith("http") && !isProd) {
+        //         item.img_url = `${API_URL}/api/proxy?url=${encodeURIComponent(item.img_url)}`;
+        //     } else if (!isProd) {
+        //         item.img_url = `http://localhost:3000/images/${item.img_url}`;
+        //     }
+        // });
+        // console.log("Updated jsdata with proxied URLs:", jsdata);
         jsdata = ocrData;
         await addImage(); // now render with OCR
     } catch (error) {
@@ -48,8 +58,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 // const jsdata = JSON.parse(document.getElementById('json-data').textContent);
 
-const comicContainer = document.getElementById('comic-container'),
-    comicImagesContainer = document.getElementById('comic-images-container');
 
 function fitTextToBox(
     textElement,
@@ -108,38 +116,26 @@ function formatText(text) {
  * { bbox: { x0,y0,x1,y1 }, text, fg_color, bg_color, angle, type, is_bold, ... }
  */
 function normalizeTranslation(t) {
-    // If t is an array like [bboxArray, text]
-    if (Array.isArray(t) && t.length >= 2) {
-        const b = t[0];
-        const txt = t[1] ?? "";
+    // If t is an array [bboxArray, text], convert it
+    if (Array.isArray(t)) {
+        const [b, txt] = t;
         if (Array.isArray(b) && b.length >= 4) {
-            return {
-                ...t,
-                bbox: { x0: b[0], y0: b[1], x1: b[2], y1: b[3] },
-                text: String(txt),
-            };
+            return { ...t, bbox: { x0: b[0], y0: b[1], x1: b[2], y1: b[3] }, text: txt };
         }
         return { bbox: { x0: 0, y0: 0, x1: 0, y1: 0 }, text: String(txt) };
     }
 
-    // If t is an object with bbox array or object
+    // If bbox is an array, convert to object
     let bbox = t.bbox;
-    if (Array.isArray(bbox) && bbox.length >= 4) {
+    if (Array.isArray(bbox)) {
         bbox = { x0: bbox[0], y0: bbox[1], x1: bbox[2], y1: bbox[3] };
-    } else if (!bbox || typeof bbox !== "object") {
+    } else if (!bbox || typeof bbox !== 'object') {
         bbox = { x0: 0, y0: 0, x1: 0, y1: 0 };
     }
-    const text = t.text ?? t.en ?? t.fr ?? t.pt ?? "";
-    return {
-        ...t,
-        bbox,
-        text: String(text),
-        fg_color: t.fg_color ?? [0, 0, 0],
-        bg_color: t.bg_color ?? [255, 255, 255],
-        angle: t.angle ?? 0,
-        type: t.type ?? "inside",
-        is_bold: !!t.is_bold,
-    };
+
+    const text = t.text ?? t.en ?? t.fr ?? t.pt ?? '';
+
+    return { ...t, bbox, text };
 }
 
 /**
@@ -148,8 +144,10 @@ function normalizeTranslation(t) {
  */
 function groupLinesIntoSpeechBubbles(translations, verticalThreshold = 100, horizontalThreshold = 30) {
     const speechBubbles = [];
+
     translations.forEach((currentLine) => {
         let addedToBubble = false;
+
         for (const bubble of speechBubbles) {
             const lastLine = bubble[bubble.length - 1];
             if (!lastLine || !lastLine.bbox || !currentLine.bbox) continue;
@@ -163,10 +161,12 @@ function groupLinesIntoSpeechBubbles(translations, verticalThreshold = 100, hori
                 break;
             }
         }
+
         if (!addedToBubble) {
             speechBubbles.push([currentLine]);
         }
     });
+
     return speechBubbles;
 }
 
@@ -217,6 +217,21 @@ function attachEditableTooltip(overlayEl, initialText) {
     });
 }
 
+async function loadImageWithProxy(originalUrl) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+
+    // ✅ Load through your proxy FIRST
+    const proxiedUrl = `${API_URL}/api/proxy?url=${encodeURIComponent(originalUrl)}`;
+    image.src = proxiedUrl;
+
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+  });
+}
+
+
 /**
  * Render speech bubbles: draws inpaint/background rectangles on a high-DPI canvas
  * and creates overlay text boxes positioned/rotated to match the bubble.
@@ -225,105 +240,104 @@ function attachEditableTooltip(overlayEl, initialText) {
  * image: the loaded <img> element (displayed at CSS size)
  * translations: array of normalized translation objects
  */
-function renderSpeechBubbles(container, image, translations) {
+async function renderSpeechBubbles(container, image, translations) {
     if (!translations || translations.length === 0) return;
 
     // Group lines into bubbles
     const speechBubbles = groupLinesIntoSpeechBubbles(translations, 100, 30);
+    console.log("Grouped into speech bubbles:", speechBubbles);
     if (!speechBubbles.length) return;
 
-    // Get displayed size and DPR
-    const displayW = image.clientWidth || image.width;
-    const displayH = image.clientHeight || image.height;
+    const canvas = document.createElement('canvas');
+    // --- Setup canvas to match the image's displayed (CSS) size with DPR handling ---
+    const displayW = image.clientWidth;   // displayed width (CSS px)
+    const displayH = image.clientHeight;  // displayed height (CSS px)
     const dpr = window.devicePixelRatio || 1;
 
-    // Create canvas sized for displayed area but with device pixel density
-    const canvas = document.createElement("canvas");
+    // configure high-DPI canvas but keep ctx coordinates as CSS px (via setTransform)
     canvas.width = Math.round(displayW * dpr);
     canvas.height = Math.round(displayH * dpr);
-    canvas.style.width = displayW + "px";
-    canvas.style.height = displayH + "px";
-    canvas.style.position = "absolute";
-    canvas.style.left = "0px";
-    canvas.style.top = "0px";
-    canvas.style.zIndex = "1"; // behind overlays (overlay will use zIndex 999)
-    container.appendChild(canvas);
+    canvas.style.width = displayW + 'px';
+    canvas.style.height = displayH + 'px';
 
-    const ctx = canvas.getContext("2d");
-    // Map CSS px coordinates to device pixels
+    const ctx = canvas.getContext('2d');
+    // Map CSS pixels -> device pixels so we can draw using CSS coordinates
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    // Draw the current image onto canvas at displayed size (CSS coords)
+    // draw the image at displayed size (CSS px coordinates)
     ctx.clearRect(0, 0, displayW, displayH);
-    try {
-        ctx.drawImage(image, 0, 0, displayW, displayH);
-    } catch (e) {
-        // If drawImage fails (rare), skip inpainting
-        console.warn("drawImage failed:", e);
-    }
+    ctx.drawImage(image, 0, 0, displayW, displayH);
 
-    // Scale factors from natural image coords -> displayed (CSS) coords
-    // If naturalWidth is zero, fallback to 1 to avoid division by zero
-    const naturalW = image.naturalWidth || 1;
-    const naturalH = image.naturalHeight || 1;
-    const scaleX = displayW / naturalW;
-    const scaleY = displayH / naturalH;
+    // scale factors from natural image coordinates -> displayed (CSS) coordinates
+    const scaleX = displayW / image.naturalWidth;
+    const scaleY = displayH / image.naturalHeight;
 
-    // Container & image offsets so overlays align when container has padding/margins
+    // compute offsets if image does not fill its container (object-fit: contain, letterbox, etc.)
     const containerRect = container.getBoundingClientRect();
     const imageRect = image.getBoundingClientRect();
     const offsetX = Math.round(imageRect.left - containerRect.left);
     const offsetY = Math.round(imageRect.top - containerRect.top);
 
+    // ensure the container is positioned relative so absolute children align
+    // (if not already set in CSS)
+    container.style.position = container.style.position || 'relative';
+
     // We'll collect overlay elements to append after canvas -> so they are above the canvas
     const overlays = [];
 
     for (const bubble of speechBubbles) {
-        const mergedText = bubble.map((line) => line.text).join(" ").trim();
-        if (!mergedText || mergedText.length <= 2) {
-            // skip very short lines (likely noise)
-            continue;
-        }
-
-        // Compute bounding box (natural coords) from lines
-        const minX = Math.min(...bubble.map((l) => l.bbox.x0));
-        const minY = Math.min(...bubble.map((l) => l.bbox.y0));
-        const maxX = Math.max(...bubble.map((l) => l.bbox.x1));
-        const maxY = Math.max(...bubble.map((l) => l.bbox.y1));
+        const mergedText = bubble.map(line => line.text).join(' ');
+        const minX = Math.min(...bubble.map(line => line.bbox.x0));
+        const minY = Math.min(...bubble.map(line => line.bbox.y0));
+        const maxX = Math.max(...bubble.map(line => line.bbox.x1));
+        const maxY = Math.max(...bubble.map(line => line.bbox.y1));
         const bbox = { x0: minX, y0: minY, x1: maxX, y1: maxY };
 
-        // Map to displayed (CSS) coordinates
+        // style props (safe defaults)
+        // pick style props from first line in bubble (safe defaults)
+        const first = bubble[0] || {};
+        const fg_color = first.fg_color ?? [0, 0, 0];
+        const bg_color = first.bg_color ?? [255, 255, 255];
+        const angle = first.angle ?? 0;
+        const type = first.type ?? 'inside';
+        const is_bold = first.is_bold ?? false;
+
+        const fg_color_rgb = arrayToRgb(fg_color);
+        const bg_color_rgb = arrayToRgb(bg_color);
+
+        // Convert bbox to displayed (CSS) coords
         const leftCss = bbox.x0 * scaleX;
         const topCss = bbox.y0 * scaleY;
         const rightCss = bbox.x1 * scaleX;
         const bottomCss = bbox.y1 * scaleY;
+
         const bubbleWidth = Math.max(8, rightCss - leftCss);
         const bubbleHeight = Math.max(8, bottomCss - topCss);
 
-        // style props from first line
-        const first = bubble[0] || {};
-        const fg_color = first.fg_color ?? [0, 0, 0];
-        const bg_color = first.bg_color ?? [255, 255, 255];
-        const fg_color_rgb = arrayToRgb(fg_color);
-        const bg_color_rgb = arrayToRgb(bg_color);
-        const angle = first.angle ?? 0;
-        const type = first.type ?? "inside";
-        const is_bold = first.is_bold ?? false;
+        // padding in CSS px (tweak as needed)
+        const padding = 0;
 
-        // Draw rectangle (background) on canvas — translate/rotate around center
-        ctx.save();
-        // Translate to the rectangle center (CSS coords)
-        ctx.translate(leftCss + bubbleWidth / 2, topCss + bubbleHeight / 2);
-        if (angle) ctx.rotate((angle * Math.PI) / 180);
-        ctx.fillStyle = bg_color_rgb || "rgb(255,255,255)";
-        // padding to avoid cutting edges
-        const padding = 2;
-        ctx.fillRect(-bubbleWidth / 2 - padding, -bubbleHeight / 2 - padding, bubbleWidth + padding * 2, bubbleHeight + padding * 2);
-        ctx.restore();
-
-        // Create overlay DIV (text or sfx)
+        // center used for rotation alignment (CSS coords relative to imageContainer)
         const centerX = offsetX + leftCss + bubbleWidth / 2;
         const centerY = offsetY + topCss + bubbleHeight / 2;
+        
+        if (mergedText.length > 2) {
+            // --- draw the inpaint / background on the canvas ---
+            // We must draw using the SAME CSS coordinates. Because ctx.setTransform maps CSS -> device,
+            // we can use CSS coords directly here (no extra multiplication by dpr).
+            ctx.save();
+            // translate to the center of the bubble (canvas coordinates are CSS px because of setTransform)
+            ctx.translate(leftCss + bubbleWidth / 2, topCss + bubbleHeight / 2);
+            if (angle) ctx.rotate((angle * Math.PI) / 180); // rotate around the same center
+            ctx.fillStyle = bg_color_rgb || 'rgb(255,255,255)';
+            ctx.fillRect(
+                -bubbleWidth / 2 - padding,
+                -bubbleHeight / 2 - padding,
+                bubbleWidth + padding * 2,
+                bubbleHeight + padding * 2
+            );
+            ctx.restore();
+        }
 
         if (type === "sfx") {
             const sfxContainer = document.createElement("div");
@@ -359,19 +373,13 @@ function renderSpeechBubbles(container, image, translations) {
             translationText.style.transformOrigin = "center center";
             translationText.style.fontFamily = is_bold ? "blambot-bold" : "blambot";
             translationText.style.zIndex = 999;
-            translationText.innerHTML = formatText(mergedText);
-            translationText.dataset.bbox = JSON.stringify([bbox.x0, bbox.y0, bbox.x1, bbox.y1]);
-
-            // optional debug outline (remove when not needed)
-            if (window.DEBUG_BBOX) {
-                translationText.style.outline = "1px dashed rgba(0,0,0,0.2)";
-            }
 
             overlays.push(translationText);
-            attachEditableTooltip(translationText, mergedText);
-            makeDraggable(translationText);
             // let external logic resize the text box (refitTextBox)
             refitTextBox(translationText);
+            translationText.innerHTML = formatText(mergedText);
+            makeDraggable(translationText);
+            attachEditableTooltip(translationText, mergedText);
         }
     } // end for each bubble
 
@@ -379,6 +387,7 @@ function renderSpeechBubbles(container, image, translations) {
     try {
         const translatedImageUrl = canvas.toDataURL("image/jpeg", 0.95);
         image.src = translatedImageUrl;
+        console.log("Replaced image src with canvas data URL: ", translatedImageUrl);
         image.setAttribute("isPainted", "1");
     } catch (e) {
         console.warn("Could not replace image src with canvas data:", e);
@@ -396,7 +405,8 @@ function renderSpeechBubbles(container, image, translations) {
  */
 function loadImage(imgUrl, imageContainer, imageData, maxRetries = 3) {
     return new Promise((resolve) => {
-        const image = new Image();
+        let image = new Image();
+        image.crossOrigin = "anonymous";
         const imageClass = "w-full shadow-md object-contain";
         image.classList.add(...imageClass.split(" "));
         image.style.display = "none";
@@ -411,7 +421,7 @@ function loadImage(imgUrl, imageContainer, imageData, maxRetries = 3) {
                 // Append the raw image (we may replace its src later after canvas drawing)
                 imageContainer.appendChild(image);
                 image.style.display = "block";
-
+                if (image.getAttribute('isPainted') === '1') return;
                 // Normalize translations and render speech bubbles (including canvas drawing)
                 const rawTranslations = Array.isArray(imageData?.translations) ? imageData.translations : [];
                 const normalized = rawTranslations.map(normalizeTranslation);
@@ -456,7 +466,7 @@ async function addImage() {
 
     for (let i = 0; i < total; i++) {
         const imageData = jsdata[i];
-        const imgUrl = isProd ? `http://localhost:3000/images/${imageData.img_url}` : imageData.img_url;
+        const imgUrl = isProd || !imageData.img_url.startsWith("http") ? `http://localhost:3000/images/${imageData.img_url}` : imageData.img_url;
 
         // build container + spinner
         const imageContainer = document.createElement("div");

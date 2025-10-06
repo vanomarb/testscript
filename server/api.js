@@ -7,6 +7,19 @@ import "dotenv/config"; // optional for .env support
 
 import { baozi, mangabaka } from "./modules.js"; // your centralized scrapers
 import easyocr from "./ocr/ocr.js";
+import EasyOCR from "easyocr-js";
+const ocr = new EasyOCR();
+
+// Initialize OCR reader once
+(async () => {
+  try {
+    console.log("🧠 Initializing OCR reader once...");
+    await ocr.init(["ch_sim"]); // ✅ runs only at server start
+    console.log("✅ OCR ready!");
+  } catch (err) {
+    console.error("❌ Failed to initialize OCR:", err);
+  }
+})();
 
 // Determine current directory (ESM-safe __dirname)
 const __filename = fileURLToPath(import.meta.url);
@@ -19,13 +32,13 @@ const isProd = process.env.NODE_ENV === "production";
 const PORT = process.env.PORT || (isProd ? 8080 : 4000);
 
 // 🧩 Allow CORS (for dev only)
-app.use(
-  cors({
-    origin: isProd ? "https://yourdomain.com" : "http://localhost:3000",
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  })
-);
-
+// app.use(
+//   cors({
+//     origin: isProd ? "https://yourdomain.com" : "http://localhost:3000",
+//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+//   })
+// );
+app.use(cors());
 // ✅ Parse JSON bodies (optional for POST endpoints)
 app.use(express.json());
 
@@ -93,11 +106,36 @@ app.get("/api/mangabaka/:manga", async (req, res) => {
 app.post("/api/ocr", async (req, res) => {
   try {
     const imagePath = req.body;
-    const results = await easyocr(imagePath);
+    const results = await easyocr(ocr, imagePath);
     res.json(results);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "OCR failed" });
+  }
+});
+
+// ✅ Proxy route for remote images
+app.get("/api/proxy", async (req, res) => {
+  const imageUrl = req.query.url;
+  if (!imageUrl) return res.status(400).send("Missing URL");
+
+  try {
+    console.log("🔁 Proxying image:", imageUrl);
+    const response = await fetch(imageUrl);
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+    }
+
+    const contentType = response.headers.get("content-type") || "image/jpeg";
+    res.set("Content-Type", contentType);
+    res.set("Access-Control-Allow-Origin", "*");
+
+    const buffer = await response.arrayBuffer();
+    res.send(Buffer.from(buffer));
+  } catch (err) {
+    console.error("❌ Proxy error:", err);
+    res.status(500).send("Failed to proxy image");
   }
 });
 /* -------------------------------------------------------------------------- */
