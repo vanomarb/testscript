@@ -7,6 +7,8 @@ const comicType = document
     .textContent.trim('\n')
     .trim(' ');
 
+const comicContainer = document.getElementById('comic-container'),
+    comicImagesContainer = document.getElementById
 let jsdata = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -218,17 +220,17 @@ function attachEditableTooltip(overlayEl, initialText) {
 }
 
 async function loadImageWithProxy(originalUrl) {
-  return new Promise((resolve, reject) => {
-    const image = new Image();
-    image.crossOrigin = "anonymous";
+    return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.crossOrigin = "anonymous";
 
-    // ✅ Load through your proxy FIRST
-    const proxiedUrl = `${API_URL}/api/proxy?url=${encodeURIComponent(originalUrl)}`;
-    image.src = proxiedUrl;
+        // ✅ Load through your proxy FIRST
+        const proxiedUrl = `${API_URL}/api/proxy?url=${encodeURIComponent(originalUrl)}`;
+        image.src = proxiedUrl;
 
-    image.onload = () => resolve(image);
-    image.onerror = reject;
-  });
+        image.onload = () => resolve(image);
+        image.onerror = reject;
+    });
 }
 
 
@@ -245,7 +247,6 @@ async function renderSpeechBubbles(container, image, translations) {
 
     // Group lines into bubbles
     const speechBubbles = groupLinesIntoSpeechBubbles(translations, 100, 30);
-    console.log("Grouped into speech bubbles:", speechBubbles);
     if (!speechBubbles.length) return;
 
     const canvas = document.createElement('canvas');
@@ -320,7 +321,17 @@ async function renderSpeechBubbles(container, image, translations) {
         // center used for rotation alignment (CSS coords relative to imageContainer)
         const centerX = offsetX + leftCss + bubbleWidth / 2;
         const centerY = offsetY + topCss + bubbleHeight / 2;
-        
+
+        // proceed to next bubble if confidence is low 0.3
+        // get bubble confidence using map
+        // console.log("Processing bubble:", bubble[0]);
+        // let bubbleConfidence = Math.round(bubble[0].confidence * 1000) / 1000;
+        // let roundedStr = bubbleConfidence.toFixed(3);
+        // console.log("Bubble confidence:", roundedStr);
+        // if (roundedStr > 0.03) {
+
+
+
         if (mergedText.length > 2) {
             // --- draw the inpaint / background on the canvas ---
             // We must draw using the SAME CSS coordinates. Because ctx.setTransform maps CSS -> device,
@@ -380,21 +391,20 @@ async function renderSpeechBubbles(container, image, translations) {
             translationText.innerHTML = formatText(mergedText);
             makeDraggable(translationText);
             attachEditableTooltip(translationText, mergedText);
-        }
-    } // end for each bubble
-
-    // After drawing all backgrounds, update the image with the canvas result (inpainted look)
-    try {
-        const translatedImageUrl = canvas.toDataURL("image/jpeg", 0.95);
-        image.src = translatedImageUrl;
-        console.log("Replaced image src with canvas data URL: ", translatedImageUrl);
-        image.setAttribute("isPainted", "1");
-    } catch (e) {
-        console.warn("Could not replace image src with canvas data:", e);
     }
+} // end for each bubble
 
-    // Append overlays (they will sit above canvas because zIndex is higher)
-    overlays.forEach((el) => container.appendChild(el));
+// After drawing all backgrounds, update the image with the canvas result (inpainted look)
+try {
+    const translatedImageUrl = canvas.toDataURL("image/jpeg", 0.95);
+    image.src = translatedImageUrl;
+    image.setAttribute("isPainted", "1");
+} catch (e) {
+    console.warn("Could not replace image src with canvas data:", e);
+}
+
+// Append overlays (they will sit above canvas because zIndex is higher)
+overlays.forEach((el) => container.appendChild(el));
 }
 
 // ---------- Image loader & addImage (use the helpers above) ----------
