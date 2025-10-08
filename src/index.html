@@ -9,12 +9,166 @@
 </head>
 
 <body>
-    <div id="comic-type" hidden>Manhua</div>
-    <div id="comic-images-container" class="mx-auto mt-8 flex flex-col items-center justify-center min-h-screen"></div>
+    <div class=" transition-colors duration-0 text-white bg-[#070920]"
+        style="line-height: 1.6; text-size-adjust: 100%; -webkit-font-smoothing: antialiased; text-rendering: optimizelegibility; touch-action: manipulation;">
+        <div class="pt-16 md:pt-20 relative">
+            <!-- <div class="fixed inset-0 pointer-events-none">
+                <div
+                    class="absolute z-10  inset-0 bg-[linear-gradient(rgba(255,255,255,.07)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.07)_1px,transparent_1px)] bg-[size:72px_72px]">
+                </div>
+                <div class="absolute z-20 transition-colors duration-0 inset-0 text-white bg-black/60"></div>
+            </div> -->
+            <header
+                class="absolute backdrop-blur-sm top-0 left-0 right-0 z-[9999] w-full bg-gradient-to-b transition-colors duration-0 from-purple-900/10 to-gray-950/30 bg-opacity-80 border-b-purple-400/20 border-b-[1px] flex items-center justify-between h-16 sm:h-20 px-4 sm:px-20">
+                <div class="flex items-center">
+                    <a class="flex items-center mr-2" href="/"><img alt="logo" width="40" height="40" decoding="async"
+                            data-nimg="1" class="rounded-full w-12 md:w-16" src="/logo.svg" style="color: transparent;">
+                    </a>
+                    <nav aria-label="Primary"
+                        class="ml-5 space-x-8 transition-colors duration-200 hidden lg:flex text-gray-300">
+                        <a class="flex items-center gap-2 text-base justify-center transition-colors duration-0 hover:text-purple-500 font-bold text-white"
+                            href="/manga-list" data-link><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" class="lucide h-4 w-4"
+                                aria-hidden="true">
+                                <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path>
+                                <path
+                                    d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z">
+                                </path>
+                            </svg>Home
+                        </a>
+                        <a class="flex items-center gap-2 text-base justify-center transition-colors duration-0 hover:text-purple-500 "
+                            href="/search" data-link><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" class="lucide  h-4 w-4"
+                                aria-hidden="true">
+                                <path d="m21 21-4.34-4.34"></path>
+                                <circle cx="11" cy="11" r="8"></circle>
+                            </svg>Search
+                        </a>
+                        <a class="flex items-center gap-2 text-base justify-center transition-colors duration-0 hover:text-purple-500 "
+                            href="/library" data-link><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round"
+                                class="lucide h-4 w-4" aria-hidden="true">
+                                <path d="M2 6h4"></path>
+                                <path d="M2 10h4"></path>
+                                <path d="M2 14h4"></path>
+                                <path d="M2 18h4"></path>
+                                <rect width="16" height="20" x="4" y="2" rx="2"></rect>
+                                <path d="M15 2v20"></path>
+                                <path d="M15 7h5"></path>
+                                <path d="M15 12h5"></path>
+                                <path d="M15 17h5"></path>
+                            </svg>Library
+                        </a>
+                    </nav>
+                    <button type="button" title="Open menu" aria-label="Open menu"
+                        class="transition-colors duration-0 lg:hidden text-white hamburger-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="lucide w-6 h-6" aria-hidden="true">
+                            <path d="M4 12h16"></path>
+                            <path d="M4 18h16"></path>
+                            <path d="M4 6h16"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div
+                    class="hamburger-menu absolute hidden top-16 lg:hidden left-0 w-full bg-gray-950/90 backdrop-blur-md flex flex-col items-center py-4">
+                    <a class="py-2 font-medium text-white hover:text-purple-400" href="/manga-list" data-link>Home</a>
+                    <a class="py-2 font-medium text-white hover:text-purple-400" href="/search" data-link>Search</a>
+                    <a class="py-2 font-medium text-white hover:text-purple-400" href="/library" data-link>Library</a>
+                </div>
+                <div class=" flex justify-center items-center w-fit min-w-fit">
+                    <button aria-label="Open search" class="search-button mr-2 transition-colors duration-0 lg:hidden text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="lucide w-6 h-6" aria-hidden="true">
+                            <path d="m21 21-4.34-4.34"></path>
+                            <circle cx="11" cy="11" r="8"></circle>
+                        </svg>
+                    </button>
+                    <div
+                        class="search-menu hidden lg:hidden absolute top-16 left-0 w-full bg-gray-950/90 backdrop-blur-md px-4 py-4">
+                        <div class="relative">
+                            <div
+                                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors brightness-200 opacity-60">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="lucide w-4 h-4" aria-hidden="true">
+                                    <path d="m21 21-4.34-4.34"></path>
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                </svg>
+                            </div><input
+                                class="block w-full pl-10 transition-colors duration-0 pr-3 py-2 rounded-full text-sm focus:outline-none focus:ring-2 bg-gray-800 text-white placeholder-gray-400 focus:ring-purple-500"
+                                placeholder="Search Manga" type="text" value="">
+                        </div>
+                    </div>
+                    <div class="flex items-center w-fit space-x-2">
+                        <div class="flex flex-row w-full justify-center items-center gap-5">
+                            <div class="hidden lg:flex flex-1 w-96 mx-8 relative group">
+                                <div
+                                    class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors text-gray-500 group-focus-within:text-purple-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="lucide w-4 h-4" aria-hidden="true">
+                                        <path d="m21 21-4.34-4.34"></path>
+                                        <circle cx="11" cy="11" r="8"></circle>
+                                    </svg>
+                                </div><input
+                                    class="w-full pl-11 pr-12 py-3 rounded-xl text-sm transition-all duration-0 outline-none shadow-lg bg-gray-900/70 border border-gray-700/50 text-white placeholder-gray-400 focus:bg-gray-900/90 focus:border-purple-500/70 focus:ring-2 focus:ring-purple-500/30 focus:shadow-purple-500/5 focus:shadow-xl"
+                                    placeholder="Search for manga..." aria-label="Search manga" type="text" value="">
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <kbd
+                                        class="px-2 py-1 text-xs rounded-md font-mono bg-gray-800/80 text-gray-400 border border-gray-600/50">⌘
+                                        + K
+                                    </kbd>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="relative inline-block">
+                            <button
+                                class="flex items-center border justify-center p-2.5 rounded-full shadow-lg hover:shadow-xl backdrop-blur-sm transition-all duration-0 border-purple-500/30 bg-slate-900/80 hover:bg-slate-900"
+                                aria-haspopup="true" aria-expanded="false"><svg xmlns="http://www.w3.org/2000/svg"
+                                    width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                    class="lucide transition-colors duration-0 text-gray-400"
+                                    aria-hidden="true">
+                                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+        </div>
+    </div>
+    <div id="app"></div>
     <script id="json-data"
         type="application/json">[{"img_url":"_1.jpg","translations":[{"text":"第四百七十九话 .全都上来了","bbox":[82,46,634,100],"confidence":0.8293900153631193,"verified":false}]},{"img_url":"_2.jpg","translations":[{"text":"包子漫蜚","bbox":[107,31,315,93],"confidence":0.22630971670150757,"verified":false},{"text":"包子漫蜚","bbox":[565,33,718,83],"confidence":0.17429092526435852,"verified":false},{"text":"02@0","bbox":[101,83,317,119],"confidence":0.000007411288152070483,"verified":false},{"text":"本漫董由包子漫董收集整理。更多免囊漫董萧纺周","bbox":[339,103,875,139],"confidence":0.000854745951938264,"verified":false},{"text":"止3-督已","bbox":[449,139,775,177],"confidence":6.707003820788241e-8,"verified":false},{"text":"矢二","bbox":[92,308,334,334],"confidence":0.017796714052181792,"verified":false},{"text":"你看到前面的金色","bbox":[283,432,556,482],"confidence":0.9787829258340587,"verified":false},{"text":"海洋吗?  我们守在","bbox":[284,475,555,519],"confidence":0.7934917641550916,"verified":false},{"text":"这里。是想横渡这","bbox":[285,514,556,559],"confidence":0.8374620925789886,"verified":false},{"text":"片金色海洋。","bbox":[283,555,473,599],"confidence":0.9860770940687055,"verified":false},{"text":"这海洋中的火焰力","bbox":[552,586,822,630],"confidence":0.8981198820994665,"verified":false},{"text":"量极其可怕。只有","bbox":[555,627,823,671],"confidence":0.8070367965608355,"verified":false},{"text":"火系妖族操控七品","bbox":[555,665,823,709],"confidence":0.9648218220091258,"verified":false},{"text":"以上宝器方可渡过。","bbox":[555,705,841,749],"confidence":0.9102639046427097,"verified":false},{"text":"小子。〉小心","bbox":[615,1395,823,1439],"confidence":0.1444546618335094,"verified":false},{"text":"一点!","bbox":[619,1437,703,1477],"confidence":0.9557396415332706,"verified":false},{"text":"哦?  这火焰","bbox":[347,1595,517,1637],"confidence":0.7226585735006251,"verified":false},{"text":"很厉害吗?","bbox":[345,1633,503,1677],"confidence":0.96557384717786,"verified":false}]}]</script>
     <script type="module" src="/main.js"></script>
+    <script>
+        document.addEventListener('click', function (event) {
+            const isHamburgerMenu = document.querySelector('.hamburger-menu');
+            const isClickInsideHamburger = isHamburgerMenu.contains(event.target);
+            const isContainHamburger = document.querySelector('.hamburger-button').contains(event.target);
 
+            const isSearch = document.querySelector('.search-menu');
+            const isClickInsideSearch = isSearch.contains(event.target);
+            const isContainSearch = document.querySelector('.search-button').contains(event.target);
+
+
+
+            if (isContainHamburger) document.querySelector('.hamburger-menu').classList.toggle('hidden');
+            if (isContainSearch) document.querySelector('.search-menu').classList.toggle('hidden');
+            if (isSearch.classList.contains('hidden') || isHamburgerMenu.classList.contains('hidden')) return;
+
+            if (!isClickInsideSearch && !isContainSearch && !isClickInsideHamburger && !isContainHamburger) document.querySelector('.search-menu').classList.toggle('hidden');
+            if (!isClickInsideHamburger && !isContainHamburger && !isClickInsideSearch && !isContainSearch) document.querySelector('.hamburger-menu').classList.toggle('hidden');
+        });
+    </script>
 </body>
 
 </html>

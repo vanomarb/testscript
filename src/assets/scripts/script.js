@@ -6,10 +6,9 @@ const comicType = document
     .getElementById('comic-type')
     .textContent.trim('\n')
     .trim(' ');
-
 const comicContainer = document.getElementById('comic-container'),
-    comicImagesContainer = document.getElementById
-let jsdata = [];
+    comicImagesContainer = document.getElementById('comic-images-container');
+let jsdata = [{"img_url":"_1.jpg","translations":[{"text":"第四百七十九话 .全都上来了","bbox":[82,46,634,100],"confidence":0.8293900153631193,"verified":false}]},{"img_url":"_2.jpg","translations":[{"text":"包子漫蜚","bbox":[107,31,315,93],"confidence":0.22630971670150757,"verified":false},{"text":"包子漫蜚","bbox":[565,33,718,83],"confidence":0.17429092526435852,"verified":false},{"text":"02@0","bbox":[101,83,317,119],"confidence":0.000007411288152070483,"verified":false},{"text":"本漫董由包子漫董收集整理。更多免囊漫董萧纺周","bbox":[339,103,875,139],"confidence":0.000854745951938264,"verified":false},{"text":"止3-督已","bbox":[449,139,775,177],"confidence":6.707003820788241e-8,"verified":false},{"text":"矢二","bbox":[92,308,334,334],"confidence":0.017796714052181792,"verified":false},{"text":"你看到前面的金色","bbox":[283,432,556,482],"confidence":0.9787829258340587,"verified":false},{"text":"海洋吗?  我们守在","bbox":[284,475,555,519],"confidence":0.7934917641550916,"verified":false},{"text":"这里。是想横渡这","bbox":[285,514,556,559],"confidence":0.8374620925789886,"verified":false},{"text":"片金色海洋。","bbox":[283,555,473,599],"confidence":0.9860770940687055,"verified":false},{"text":"这海洋中的火焰力","bbox":[552,586,822,630],"confidence":0.8981198820994665,"verified":false},{"text":"量极其可怕。只有","bbox":[555,627,823,671],"confidence":0.8070367965608355,"verified":false},{"text":"火系妖族操控七品","bbox":[555,665,823,709],"confidence":0.9648218220091258,"verified":false},{"text":"以上宝器方可渡过。","bbox":[555,705,841,749],"confidence":0.9102639046427097,"verified":false},{"text":"小子。〉小心","bbox":[615,1395,823,1439],"confidence":0.1444546618335094,"verified":false},{"text":"一点!","bbox":[619,1437,703,1477],"confidence":0.9557396415332706,"verified":false},{"text":"哦?  这火焰","bbox":[347,1595,517,1637],"confidence":0.7226585735006251,"verified":false},{"text":"很厉害吗?","bbox":[345,1633,503,1677],"confidence":0.96557384717786,"verified":false}]}];
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -22,36 +21,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         const apiUrl = `${API_URL}/api/images/${comicId}/${sectionSlot}/${chapterSlot}`;
         const apiUrlOcr = `${API_URL}/api/ocr`;
 
-        const response = await fetch(apiUrl);
-        const data = await response.json();
-        jsdata = data;
+        // const response = await fetch(apiUrl);
+        // const data = await response.json();
+        // jsdata = data;
 
-        console.log("Fetched images:", data);
+        // console.log("Fetched images:", data);
         await addImage(); // waits for all images to finish loading
 
-        console.log("🚀 Starting OCR request...");
-        let imageData = jsdata.map(item => item.img_url); // extract image URLs
-        const ocrResponse = await fetch(apiUrlOcr, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(imageData),
-        });
-
-        const ocrData = await ocrResponse.json();
-        console.log("✅ OCR completed:", ocrData);
-        //  image = await loadImageWithProxy(image.src);
-
-        // intecept ocrData img_url to proxy images through our server
-        // jsdata = ocrData.map(item => {
-        //     if (item.img_url.startsWith("http") && !isProd) {
-        //         item.img_url = `${API_URL}/api/proxy?url=${encodeURIComponent(item.img_url)}`;
-        //     } else if (!isProd) {
-        //         item.img_url = `http://localhost:3000/images/${item.img_url}`;
-        //     }
+        // console.log("🚀 Starting OCR request...");
+        // let imageData = jsdata.map(item => item.img_url); // extract image URLs
+        // const ocrResponse = await fetch(apiUrlOcr, {
+        //     method: "POST",
+        //     headers: { "Content-Type": "application/json" },
+        //     body: JSON.stringify(imageData),
         // });
-        // console.log("Updated jsdata with proxied URLs:", jsdata);
-        jsdata = ocrData;
-        await addImage(); // now render with OCR
+
+        // const ocrData = await ocrResponse.json();
+        // console.log("✅ OCR completed:", ocrData);
+
+        // jsdata = ocrData;
+        // await addImage(); // now render with OCR
     } catch (error) {
         console.error("❌ Error:", error);
     }
