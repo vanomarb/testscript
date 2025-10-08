@@ -12,12 +12,12 @@
     <div class=" transition-colors duration-0 text-white bg-[#070920]"
         style="line-height: 1.6; text-size-adjust: 100%; -webkit-font-smoothing: antialiased; text-rendering: optimizelegibility; touch-action: manipulation;">
         <div class="pt-16 md:pt-20 relative">
-            <!-- <div class="fixed inset-0 pointer-events-none">
+            <div class="fixed inset-0 pointer-events-none backdrop hidden">
                 <div
                     class="absolute z-10  inset-0 bg-[linear-gradient(rgba(255,255,255,.07)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.07)_1px,transparent_1px)] bg-[size:72px_72px]">
                 </div>
                 <div class="absolute z-20 transition-colors duration-0 inset-0 text-white bg-black/60"></div>
-            </div> -->
+            </div>
             <header
                 class="absolute backdrop-blur-sm top-0 left-0 right-0 z-[9999] w-full bg-gradient-to-b transition-colors duration-0 from-purple-900/10 to-gray-950/30 bg-opacity-80 border-b-purple-400/20 border-b-[1px] flex items-center justify-between h-16 sm:h-20 px-4 sm:px-20">
                 <div class="flex items-center">
@@ -49,8 +49,8 @@
                         <a class="flex items-center gap-2 text-base justify-center transition-colors duration-0 hover:text-purple-500 "
                             href="/library" data-link><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round"
-                                class="lucide h-4 w-4" aria-hidden="true">
+                                stroke-linecap="round" stroke-linejoin="round" class="lucide h-4 w-4"
+                                aria-hidden="true">
                                 <path d="M2 6h4"></path>
                                 <path d="M2 10h4"></path>
                                 <path d="M2 14h4"></path>
@@ -81,7 +81,8 @@
                     <a class="py-2 font-medium text-white hover:text-purple-400" href="/library" data-link>Library</a>
                 </div>
                 <div class=" flex justify-center items-center w-fit min-w-fit">
-                    <button aria-label="Open search" class="search-button mr-2 transition-colors duration-0 lg:hidden text-white">
+                    <button aria-label="Open search"
+                        class="search-button mr-2 transition-colors duration-0 lg:hidden text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                             class="lucide w-6 h-6" aria-hidden="true">
@@ -133,8 +134,7 @@
                                 aria-haspopup="true" aria-expanded="false"><svg xmlns="http://www.w3.org/2000/svg"
                                     width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide transition-colors duration-0 text-gray-400"
-                                    aria-hidden="true">
+                                    class="lucide transition-colors duration-0 text-gray-400" aria-hidden="true">
                                     <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
                                     <circle cx="12" cy="7" r="4"></circle>
                                 </svg>
@@ -151,23 +151,47 @@
     <script type="module" src="/main.js"></script>
     <script>
         document.addEventListener('click', function (event) {
-            const isHamburgerMenu = document.querySelector('.hamburger-menu');
-            const isClickInsideHamburger = isHamburgerMenu.contains(event.target);
-            const isContainHamburger = document.querySelector('.hamburger-button').contains(event.target);
+            const hamburgerMenu = document.querySelector('.hamburger-menu');
+            const hamburgerButton = document.querySelector('.hamburger-button');
+            const searchMenu = document.querySelector('.search-menu');
+            const searchButton = document.querySelector('.search-button');
+            const backdrop = document.querySelector('.backdrop');
 
-            const isSearch = document.querySelector('.search-menu');
-            const isClickInsideSearch = isSearch.contains(event.target);
-            const isContainSearch = document.querySelector('.search-button').contains(event.target);
+            const clickedHamburgerButton = hamburgerButton.contains(event.target);
+            const clickedSearchButton = searchButton.contains(event.target);
+            const clickedInsideHamburger = hamburgerMenu.contains(event.target);
+            const clickedInsideSearch = searchMenu.contains(event.target);
 
+            // Toggle menus when clicking their buttons
+            if (clickedHamburgerButton) {
+                hamburgerMenu.classList.toggle('hidden');
+                searchMenu.classList.add('hidden'); // close search if hamburger opens
+            }
 
+            if (clickedSearchButton) {
+                searchMenu.classList.toggle('hidden');
+                hamburgerMenu.classList.add('hidden'); // close hamburger if search opens
+            }
 
-            if (isContainHamburger) document.querySelector('.hamburger-menu').classList.toggle('hidden');
-            if (isContainSearch) document.querySelector('.search-menu').classList.toggle('hidden');
-            if (isSearch.classList.contains('hidden') || isHamburgerMenu.classList.contains('hidden')) return;
+            // Click outside both menus → close both
+            if (
+                !clickedInsideHamburger &&
+                !clickedInsideSearch &&
+                !clickedHamburgerButton &&
+                !clickedSearchButton
+            ) {
+                hamburgerMenu.classList.add('hidden');
+                searchMenu.classList.add('hidden');
+            }
 
-            if (!isClickInsideSearch && !isContainSearch && !isClickInsideHamburger && !isContainHamburger) document.querySelector('.search-menu').classList.toggle('hidden');
-            if (!isClickInsideHamburger && !isContainHamburger && !isClickInsideSearch && !isContainSearch) document.querySelector('.hamburger-menu').classList.toggle('hidden');
+            // Backdrop visibility based on menus
+            if (!hamburgerMenu.classList.contains('hidden') || !searchMenu.classList.contains('hidden')) {
+                backdrop.classList.remove('hidden');
+            } else {
+                backdrop.classList.add('hidden');
+            }
         });
+
     </script>
 </body>
 
