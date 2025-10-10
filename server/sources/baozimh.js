@@ -158,5 +158,39 @@ export class Baozimh {
 
         return results;
     }
+
+    async landingPage() {
+        const { html } = await this.fetchWithMirrors(
+            m => `https://${m}`
+        );
+        let $ = cheerio.load(html);
+        let results = [];
+
+        $("#layout > div.mt-5.index div.l-content").each((i, el) => {
+            if (i < 2) {
+                // in l-content there is 10 div.comics-card items separate the first section (10 items) to popular and the rest 10 items to recommended by adding type
+                let sectionType = (i === 0) ? "popular" : "recommended";
+                $(el).find("div.comics-card").each((j, card) => {
+                    let $poster = $(card).find("a.comics-card__poster");
+                    let $info = $(card).find("a.comics-card__info");
+
+                    let title = $info.find("div.comics-card__title h3").text().trim();
+                    let url = $info.attr("href").split("/").pop();
+                    let authors = $info.find("small").text().trim().split("/").join(", ");
+                    let genres = $poster.find("div.tabs.cls span").map((k, span) => $(span).text().trim()).get();
+
+                    results.push({
+                        url,
+                        title,
+                        thumbnail: $poster.find("amp-img").attr("src"),
+                        authors,
+                        genres: genres.join(", "),
+                        type: sectionType
+                    })
+                });
+            }
+        });
+        return results;
+    }
 }
 

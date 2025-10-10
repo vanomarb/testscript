@@ -33,4 +33,9 @@ export default class Router {
     app.innerHTML = "";
     app.appendChild(view);
   }
+
+  navigateTo(url) {
+    history.pushState({}, "", url);
+    this.loadRoute();
+  }
 }

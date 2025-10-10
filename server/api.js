@@ -5,7 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import "dotenv/config"; // optional for .env support
 
-import { baozi, mangabaka } from "./modules.js"; // your centralized scrapers
+import { baozi, mangabaka, goda } from "./modules.js"; // your centralized scrapers
 import easyocr from "./ocr/ocr.js";
 import EasyOCR from "easyocr-js";
 const ocr = new EasyOCR();
@@ -45,63 +45,114 @@ app.use(express.json());
 /* -------------------------------------------------------------------------- */
 /*                                API ROUTES                                  */
 /* -------------------------------------------------------------------------- */
-
-// Get manga info (Baozimh)
-app.get("/api/info/:manga", async (req, res) => {
-  try {
-    const response = await baozi.getInfo(req.params.manga);
-    res.json(response);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to fetch manga info" });
-  }
+app.get("/popular", async (req, res) => {
+    try {
+        const page = parseInt(req.query.page || "1", 10);
+        const result = await goda.fetchPopular(page);
+        res.json(result);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
 });
 
-// Get chapters
-app.get("/api/chapters/:manga", async (req, res) => {
-  try {
-    const response = await baozi.getChapters(req.params.manga);
-    res.json(response);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to fetch chapters" });
-  }
+app.get("/latest", async (req, res) => {
+    try {
+        const page = parseInt(req.query.page || "1", 10);
+        const result = await goda.fetchLatest(page);
+        res.json(result);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
 });
 
-// Get images
-app.get("/api/images/:comic_id/:section_slot/:chapter_slot", async (req, res) => {
-  try {
-    const { comic_id, section_slot, chapter_slot } = req.params;
-    const response = await baozi.getImages(comic_id, section_slot, chapter_slot);
-    const data = response.images.map((img_url, index) => ({ id: index + 1, img_url: img_url, translations: [] }));
-    res.json(data);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to fetch images" });
-  }
+app.get("/chapters", async (req, res) => {
+    try {
+        const id = req.query.id;
+        const result = await goda.fetchChapters(id);
+        res.json(result);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
 });
 
-// Search manga (Baozimh)
-app.get("/api/search/:keyword", async (req, res) => {
-  try {
-    const response = await baozi.searchByKeyword(req.params.keyword);
-    res.json(response);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Search failed" });
-  }
+app.get("/manga", async (req, res) => {
+    try {
+        const slug = req.query.slug;
+        const result = await goda.fetchDetails(slug);
+        res.json(result);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
 });
 
-// Example endpoint for another scraper (Mangabaka)
-app.get("/api/mangabaka/:manga", async (req, res) => {
-  try {
-    const response = await mangabaka.getInfo(req.params.manga);
-    res.json(response);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to fetch from Mangabaka" });
-  }
-});
+
+// app.get("/api/manga-list", async (req, res) => {
+//   try {
+//     const response = await baozi.landingPage();
+//     res.json(response);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: "Failed to fetch manga list" });
+//   }
+// });
+
+
+// // Get manga info (Baozimh)
+// app.get("/api/info/:manga", async (req, res) => {
+//   try {
+//     const response = await baozi.getInfo(req.params.manga);
+//     res.json(response);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: "Failed to fetch manga info" });
+//   }
+// });
+
+// // Get chapters
+// app.get("/api/chapters/:manga", async (req, res) => {
+//   try {
+//     const response = await baozi.getChapters(req.params.manga);
+//     res.json(response);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: "Failed to fetch chapters" });
+//   }
+// });
+
+// // Get images
+// app.get("/api/images/:comic_id/:section_slot/:chapter_slot", async (req, res) => {
+//   try {
+//     const { comic_id, section_slot, chapter_slot } = req.params;
+//     const response = await baozi.getImages(comic_id, section_slot, chapter_slot);
+//     const data = response.images.map((img_url, index) => ({ id: index + 1, img_url: img_url, translations: [] }));
+//     res.json(data);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: "Failed to fetch images" });
+//   }
+// });
+
+// // Search manga (Baozimh)
+// app.get("/api/search/:keyword", async (req, res) => {
+//   try {
+//     const response = await baozi.searchByKeyword(req.params.keyword);
+//     res.json(response);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: "Search failed" });
+//   }
+// });
+
+// // Example endpoint for another scraper (Mangabaka)
+// app.get("/api/mangabaka/:manga", async (req, res) => {
+//   try {
+//     const response = await mangabaka.getInfo(req.params.manga);
+//     res.json(response);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: "Failed to fetch from Mangabaka" });
+//   }
+// });
 
 app.post("/api/ocr", async (req, res) => {
   try {
