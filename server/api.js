@@ -55,10 +55,19 @@ app.get("/popular", async (req, res) => {
     }
 });
 
-app.get("/latest", async (req, res) => {
+app.get("/new", async (req, res) => {
     try {
         const page = parseInt(req.query.page || "1", 10);
-        const result = await goda.fetchLatest(page);
+        const result = await goda.fetchNewComics(page);
+        res.json(result);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.get("/latest", async (req, res) => {
+    try {
+        const result = await goda.fetchLatest();
         res.json(result);
     } catch (e) {
         res.status(500).json({ error: e.message });
@@ -83,6 +92,22 @@ app.get("/manga", async (req, res) => {
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
+});
+
+// Get images
+app.get("/api/images/:comic_id/:slug/", async (req, res) => {
+  try {
+    const { comic_id, slug } = req.params;
+    const cid = req.query.cid;
+    const mid = req.query.mid;
+    const response = await goda.fetchChapterImagesAPI(comic_id, slug, cid, mid);
+    const info = response.data ? response.data : {};
+    const data = response.images.map((img_url, index) => ({ id: img_url.index, img_url: img_url.imageUrl, translations: []}));
+    res.json({ info, images: data });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch images" });
+  }
 });
 
 

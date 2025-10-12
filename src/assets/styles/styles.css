@@ -27,22 +27,117 @@ html {
 }
 
 :root {
-    --radius: 0.5rem;
-    --radius-md: 0.5rem;
-    --titlebar-h: 2.5rem;
-    --foreground: rgb(var(--color-gray-800) /1);
-    --background: white;
-    --brand: rgb(var(--color-brand-300) /1);
-    --gray: rgb(var(--color-gray-500) /1);
-    --border: rgb(var(--color-gray-200) /1);
-    --ring: rgb(var(--color-brand-500) /1);
-}
-
-.dark, [data-mode=dark] {
     --foreground: rgb(var(--color-gray-200) /1);
     --background: #070707;
     --slate: #cbd5e1;
     --gray: rgb(var(--color-gray-300) /1);
     --border: rgba(255, 255, 255, 0.1);
     --ring: rgb(var(--color-brand-200) /1);
+}
+.from-0\% {
+    --tw-gradient-from-position: 0%
+}
+
+.from-10\% {
+    --tw-gradient-from-position: 10%
+}
+
+.from-100\% {
+    --tw-gradient-from-position: 100%
+}
+
+.from-15\% {
+    --tw-gradient-from-position: 15%
+}
+
+.from-20\% {
+    --tw-gradient-from-position: 20%
+}
+
+.from-25\% {
+    --tw-gradient-from-position: 25%
+}
+
+.from-30\% {
+    --tw-gradient-from-position: 30%
+}
+
+.from-35\% {
+    --tw-gradient-from-position: 35%
+}
+
+.from-40\% {
+    --tw-gradient-from-position: 40%
+}
+
+.from-45\% {
+    --tw-gradient-from-position: 45%
+}
+
+.from-5\% {
+    --tw-gradient-from-position: 5%
+}
+
+.from-50\% {
+    --tw-gradient-from-position: 50%
+}
+
+.from-55\% {
+    --tw-gradient-from-position: 55%
+}
+
+.from-60\% {
+    --tw-gradient-from-position: 60%
+}
+
+.from-65\% {
+    --tw-gradient-from-position: 65%
+}
+
+.from-70\% {
+    --tw-gradient-from-position: 70%
+}
+
+.from-75\% {
+    --tw-gradient-from-position: 75%
+}
+
+.from-80\% {
+    --tw-gradient-from-position: 80%
+}
+
+.from-85\% {
+    --tw-gradient-from-position: 85%
+}
+
+.from-90\% {
+    --tw-gradient-from-position: 90%
+}
+
+.from-95\% {
+    --tw-gradient-from-position: 95%
+}
+
+.via-10\% {
+    --tw-gradient-via-position: 10%
+}
+
+.via-100\% {
+    --tw-gradient-via-position: 100%
+}
+
+.via-80\% {
+    --tw-gradient-via-position: 80%
+}
+
+.via-40\% {
+    --tw-gradient-via-position: 40%
+}
+
+.via-5\% {
+    --tw-gradient-via-position: 5%
+}
+
+.via-50\% {
+    --tw-gradient-via-position: 50%
 }

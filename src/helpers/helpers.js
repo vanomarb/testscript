@@ -175,6 +175,22 @@ function attachEditableTooltip(overlayEl, initialText) {
         });
     });
 }
+// var cors_api_url = 'http://localhost:8080/';
+// function doCORSRequest(options, printResult) {
+//     var x = new XMLHttpRequest();
+//     x.open(options.method, cors_api_url + options.url);
+//     x.onload = x.onerror = function () {
+//         printResult(
+//             options.method + ' ' + options.url + '\n' +
+//             x.status + ' ' + x.statusText + '\n\n' +
+//             (x.responseText || '')
+//         );
+//     };
+//     if (/^POST/i.test(options.method)) {
+//         x.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+//     }
+//     x.send(options.data);
+// }
 
 function reloadImage({ imgUrl, imageContainer, imageData, maxRetries = 3, onSuccess, onFail }) {
     return new Promise((resolve) => {
@@ -184,8 +200,15 @@ function reloadImage({ imgUrl, imageContainer, imageData, maxRetries = 3, onSucc
         image.style.display = "none";
 
         const tryLoad = (attempt = 0) => {
-            image.src = imgUrl;
-            console.log(`🌀 Loading image: ${imgUrl}`);
+            // let outputField = '';
+            // doCORSRequest({
+            //     method: 'GET',
+            //     url: imgUrl
+            // }, function printResult(result) {
+            //     outputField.value = result;
+            // });
+            image.src = attempt > 0 ? `https://corsproxy.io/?${encodeURIComponent(imgUrl)}` : imgUrl;
+            console.log(`🌀 Loading image: ${image.src}`);
 
             image.onload = () => {
                 image.style.display = "block";

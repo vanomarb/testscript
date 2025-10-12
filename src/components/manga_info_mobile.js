@@ -1,9 +1,15 @@
 import Component from "../core/components";
+import MangaGenres from "./manga_genres.js";
+import MangaDescription from "./manga_description.js";
 
-export default class MangaPage extends Component {
+export default class MangaInfoMobile extends Component {
     constructor(props) {
         super(props);
+        this.$element = props.$element;
         this.router = props.router;
+        this.translatedTitle = props.translatedTitle;
+        this.translatedDescription = props.translatedDescription;
+        this.englishTitle = props.englishTitle;
         this.title = props.title;
         this.status = props.status;
         this.author = props.author;
@@ -17,15 +23,13 @@ export default class MangaPage extends Component {
     }
 
     template() {
-        const { title, status, author, genres, description, thumbnail, id, rate, chapters, chapterCount } = this;
-
+        const { translatedTitle, title, englishTitle, status, author, thumbnail, id, rate, chapters, chapterCount } = this;
         // get last value of chapters array
         const lastChapter = chapters[chapters.length - 1];
 
         // get first value of chapters array
         const firstChapter = chapters[0];
         return `
-        <div class="block md:hidden">
             <div class="flex justify-center mb-6">
                 <div class="relative w-36 h-52 sm:w-40 sm:h-56 group select-none shadow-2xl"><a
                         href="${thumbnail}"
@@ -51,8 +55,10 @@ export default class MangaPage extends Component {
             </div>
             <div class="text-center mb-6 px-2">
                 <h1 class="text-white text-2xl sm:text-3xl font-bold drop-shadow-lg mb-2 leading-tight">
-                    ${title}
+                    ${englishTitle || translatedTitle}
                 </h1>
+                <p class="text-white/80 text-sm sm:text-base ${englishTitle ? '' : 'mb-3'} font-medium">${englishTitle ? translatedTitle : title}</p>
+                <p class="text-white/80 text-sm sm:text-base ${englishTitle && translatedTitle ? 'mb-3' : ''} font-medium">${englishTitle && translatedTitle ? title : ''}</p>
                 <p class="text-white/70 text-sm mb-4">Author: <span class="text-white font-medium">${author}</span></p>
             </div>
             <div class="grid grid-cols-2 w-full gap-2">
@@ -88,7 +94,7 @@ export default class MangaPage extends Component {
                     <svg xmlns="http://www.w3.org/2000/svg" width="24"
                         height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round"
-                        class="lucide lucide-eye w-4 h-4 mr-1 text-white/70" aria-hidden="true">
+                        class="w-4 h-4 mr-1 text-white/70" aria-hidden="true">
                         <path
                             d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0">
                         </path>
@@ -97,16 +103,8 @@ export default class MangaPage extends Component {
                     <span class="text-white text-sm">659</span>
                 </div>
                 <div class="flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24"
-                        height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round"
-                        class="lucide lucide-users w-4 h-4 mr-1 text-pink-400" aria-hidden="true">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                        <path d="M16 3.128a4 4 0 0 1 0 7.744"></path>
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                    </svg>
-                    <span class="text-pink-400 text-sm font-semibold">${chapterCount}</span>
+                    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" class="w-4 h-4 mr-1 text-white/50" aria-hidden="true" data-current="true" data-collapsed="true" height="24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M352 96c0-53.02-42.98-96-96-96s-96 42.98-96 96 42.98 96 96 96 96-42.98 96-96zM233.59 241.1c-59.33-36.32-155.43-46.3-203.79-49.05C13.55 191.13 0 203.51 0 219.14v222.8c0 14.33 11.59 26.28 26.49 27.05 43.66 2.29 131.99 10.68 193.04 41.43 9.37 4.72 20.48-1.71 20.48-11.87V252.56c-.01-4.67-2.32-8.95-6.42-11.46zm248.61-49.05c-48.35 2.74-144.46 12.73-203.78 49.05-4.1 2.51-6.41 6.96-6.41 11.63v245.79c0 10.19 11.14 16.63 20.54 11.9 61.04-30.72 149.32-39.11 192.97-41.4 14.9-.78 26.49-12.73 26.49-27.06V219.14c-.01-15.63-13.56-28.01-29.81-27.09z"></path></svg>
+                    <span class="text-white/50 text-sm font-semibold">${chapterCount}</span>
                 </div>
             </div>
             <div class="text-center mb-6">
@@ -121,14 +119,73 @@ export default class MangaPage extends Component {
                 </div>
             </div>
             <div class="px-4 mb-0">
-                <button class="flex items-center justify-center gap-2 bg-white/10 text-white hover:bg-white/20 backdrop-blur-md rounded px-4 py-2 transition-colors duration-0 w-fit mx-auto lg:mx-0" type="button">
+                <button class="show_details flex items-center justify-center gap-2 bg-white/10 text-white hover:bg-white/20 backdrop-blur-md rounded px-4 py-2 transition-colors duration-0 w-fit mx-auto lg:mx-0" type="button">
                     <span class="text-sm font-medium">Show More Details</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down w-4 h-4" aria-hidden="true">
                         <path d="m6 9 6 6 6-6"></path>
                     </svg>
                 </button>
-            </div>
-        </div>`;
+                <div class="more_details"></div>
+            </div>`;
+    }
+
+    setEvent() {
+        this.$element.addEventListener("click", (e) => {
+            if (e.target.closest(".show_details")) {
+
+                // update svg path m18 15-6-6-6 6
+                const svgPath = this.$element.querySelector(".show_details svg path");
+                const spanPath = this.$element.querySelector(".show_details span");
+                spanPath.textContent = spanPath.textContent === "Show More Details" ? "Show Less" : "Show More Details";
+                svgPath.getAttribute("d") === "m18 15-6-6-6 6" ? svgPath.setAttribute("d", "m6 9 6 6 6-6") : svgPath.setAttribute("d", "m18 15-6-6-6 6");
+
+                const container = this.$element.querySelector(".more_details");
+                const description = container.querySelector(".manga-description");
+                const genres = container.querySelector(".manga-genres");
+
+                if (description && genres) {
+                    container.innerHTML = "";
+                } else {
+                    // append description and genres
+                    this.fetchMangaDescription();
+                    this.fetchGenres();
+                }
+            }
+        });
+    }
+
+
+    // afterRender() {
+    //     this.fetchMangaDescription();
+    //     this.fetchGenres();
+    // }
+
+    fetchMangaDescription() {
+        const container = this.$element.querySelector(".more_details");
+        const $target = document.createElement('div');
+        $target.classList.add("manga-description");
+        // $target.classList.add("hidden");
+        const descriptionComponent = new MangaDescription({
+            $element: $target,
+            translatedDescription: this.translatedDescription,
+            description: this.description,
+            isMobile: true,
+        });
+        descriptionComponent.render();
+        container.appendChild($target);
+    }
+
+    fetchGenres() {
+        const container = this.$element.querySelector(".more_details");
+        const $target = document.createElement('div');
+        $target.classList.add("manga-genres");
+        // $target.classList.add("hidden");
+        const genresComponent = new MangaGenres({
+            $element: $target,
+            genres: this.genres,
+        });
+        genresComponent.render();
+        container.appendChild($target);
     }
 }

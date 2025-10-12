@@ -13,7 +13,7 @@ const router = new Router([
     {
         path: /^\/$/,
         view: async (params) => {
-            const $target = document.createElement("div");
+            const $target = document.getElementById("app");
             new MangaList({
                 $element: $target,
                 router
@@ -25,6 +25,8 @@ const router = new Router([
         path: /^\/comic\/(?<mangaId>[a-zA-Z0-9_-]+)$/,
         view: async (params) => {
             const $target = document.createElement("div");
+            const targetClassNames = 'w-full relative z-20 min-h-screen -mt-20 overflow-hidden bg-black flex flex-col gap-12 text-white';
+            $target.classList.add(...targetClassNames.split(" "));
             new MangaPage({
                 $element: $target,
                 router,
@@ -34,7 +36,7 @@ const router = new Router([
         },
     },
     {
-        path: /^\/comic\/chapter\/(?<mangaId>[a-zA-Z0-9_-]+)\/(?<section>[0-9]+)_(?<chapter>[0-9]+)$/,
+        path: /^\/comic\/(?<mangaId>[a-zA-Z0-9_-]+)\/chapter\/(?<chapter>[0-9-]+)(?:\?.*)?$/,
         view: (params) => {
             const $target = document.createElement('div');
             const classNames = 'mx-auto mt-8 flex flex-col items-center justify-center min-h-screen';
@@ -44,7 +46,6 @@ const router = new Router([
                 $element: $target,
                 router,
                 mangaId: params.mangaId,
-                section: params.section,
                 chapter: params.chapter,
             });
             return $target;

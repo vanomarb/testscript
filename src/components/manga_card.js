@@ -5,14 +5,18 @@ export default class MangaCard extends Component {
         super(props);
         this.router = props.router;
         this.id = props.id;
+        this.translatedTitle = props.translatedTitle;
         this.title = props.title;
         this.genres = props.genres;
         this.year = props.year;
         this.coverImage = props.coverImage;
+        this.type = props.type; // 'popular' or 'latest'
+        this.chapter = props.chapter;
+        this.time = props.time;
     }
 
     template() {
-        const { id, title, genres, type, year, coverImage } = this;
+        const { id, translatedTitle, title, genres, type, year, coverImage, chapter, time } = this;
 
         // separate container div if different type
         return `
@@ -24,7 +28,7 @@ export default class MangaCard extends Component {
                 <div data-media-entry-card-body="true"
                   class="media-entry-card__body aspect-[6/8] flex-none rounded-md object-cover object-center relative overflow-hidden select-none">
                   <div data-media-card-body-bottom-gradient="true"
-                    class="z-[5] absolute inset-x-0 bottom-0 w-full opacity-90 to-40% h-[50%] bg-gradient-to-t from-[#0c0c0c] to-transparent">
+                    class="z-[5] absolute inset-x-0 bottom-0 w-full opacity-90 to-40% h-[80%] bg-gradient-to-t from-[#0c0c0c] to-transparent">
                   </div>
                   <img data-media-entry-card-body-image="true" alt="${title}" loading="lazy"
                     decoding="async" data-nimg="fill"
@@ -33,26 +37,25 @@ export default class MangaCard extends Component {
                     style="position:absolute;height:100%;width:100%;inset:0;color:transparent;">
                 </div>
               </a>
-              <div data-media-entry-card-title-section="true"
-                class="pt-2 space-y-1 flex flex-col justify-between h-full select-none">
+              <div data-media-entry-card-title-section="true" class="space-y-1 flex flex-col h-full select-none pb-2 z-9 justify-end absolute left-0 right-0 px-2 pointer-events-none">
                 <div>
                   <p data-media-entry-card-title-section-title="true"
-                    class="text-pretty font-medium min-[2000px]:font-semibold text-sm lg:text-[1rem] min-[2000px]:text-lg line-clamp-2">
-                    ${title}</p>
-                </div>
-                <div>
-                  <p data-media-entry-card-title-section-year-season="true"
-                    class="text-sm text-[--muted] inline-flex gap-1 items-center">${year}</p>
+                    class="text-pretty font-medium min-[2000px]:font-semibold text-xs line-clamp-2">
+                    ${translatedTitle || title}</p>
                 </div>
               </div>
             </div>
+            ${type == 'hot updates' ? `<div class="flex h-full select-none pt-2 justify-between">
+              <p data-media-entry-card-title-section-year-season="true" class="text-sm text-white gap-1 items-center line-clamp-1 overflow-hidden max-h-[20px] max-w-[80px]">${chapter}</p>
+              <p data-media-entry-card-title-section-year-season="true" class="text-sm text-[#ffffff66] gap-1 items-center">${time}</p>
+            </div>` : ''}
         </div>
         `;
         }
 
     setEvent() {
         this.$element.addEventListener("click", () => {
-            this.router.navigateTo(`/comic/${this.id}`);
+            this.router.navigateTo(`comic/${this.id}`);
         });
     }
 }
