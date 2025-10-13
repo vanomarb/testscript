@@ -175,7 +175,7 @@ function attachEditableTooltip(overlayEl, initialText) {
         });
     });
 }
-// var cors_api_url = 'http://localhost:8080/';
+// var cors_api_url = 'https://nmtl.adrianmidfielder.workers.dev/';
 // function doCORSRequest(options, printResult) {
 //     var x = new XMLHttpRequest();
 //     x.open(options.method, cors_api_url + options.url);
@@ -191,6 +191,15 @@ function attachEditableTooltip(overlayEl, initialText) {
 //     }
 //     x.send(options.data);
 // }
+async function fetchWithProxy(url) {
+    const options = {
+        mode: 'cors'
+    };
+    const proxyUrl = 'https://nmtl.adrianmidfielder.workers.dev?' + encodeURIComponent(url);
+    const body = await fetch(proxyUrl, options);
+    console.log('Fetch with proxy:', body);
+    return body.url;
+}
 
 function reloadImage({ imgUrl, imageContainer, imageData, maxRetries = 3, onSuccess, onFail }) {
     return new Promise((resolve) => {
@@ -199,7 +208,7 @@ function reloadImage({ imgUrl, imageContainer, imageData, maxRetries = 3, onSucc
         image.className = "w-full shadow-md object-contain";
         image.style.display = "none";
 
-        const tryLoad = (attempt = 0) => {
+        const tryLoad = async (attempt = 0) => {
             // let outputField = '';
             // doCORSRequest({
             //     method: 'GET',
@@ -207,7 +216,9 @@ function reloadImage({ imgUrl, imageContainer, imageData, maxRetries = 3, onSucc
             // }, function printResult(result) {
             //     outputField.value = result;
             // });
-            image.src = attempt > 0 ? `https://corsproxy.io/?${encodeURIComponent(imgUrl)}` : imgUrl;
+            // image.src = attempt > 0 ? `https://corsproxy.io/?${encodeURIComponent(imgUrl)}` : imgUrl;
+            image.src = attempt > 0 ? await fetchWithProxy(imgUrl) : imgUrl;
+
             console.log(`🌀 Loading image: ${image.src}`);
 
             image.onload = () => {

@@ -231,6 +231,16 @@ export default class MangaList extends Component {
           cardEl.setAttribute("data-media-card-lazy-grid-item", "true");
           cardEl.setAttribute("data-index", index);
 
+          if(manga.time === '刚刚') {
+            manga.time = 'just now';
+          }else if(manga.time && manga.time.includes('分钟前')) {
+            manga.time = manga.time.replace('分钟前', ' minutes ago');
+          }else if(manga.time && manga.time.includes('小时前')) {
+            manga.time = manga.time.replace('小时前', ' hours ago');
+          }else if(manga.time && manga.time.includes('天前')) {
+            manga.time = manga.time.replace('天前', ' days ago');
+          }
+
           const card = new MangaCard({
             $element: cardEl,
             router: this.router,
@@ -242,7 +252,7 @@ export default class MangaList extends Component {
             year: manga.year || "N/A",
             coverImage: manga.thumbnail,
             chapter: manga.chapter,
-            time: manga.time != '刚刚' ? manga.time.match(/\d+/) + ' hours ago' : 'just now'
+            time: manga.time
           });
           card.render();
           gridEl.appendChild(cardEl);

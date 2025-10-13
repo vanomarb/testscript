@@ -46,8 +46,8 @@ export default class MangaCard extends Component {
               </div>
             </div>
             ${type == 'hot updates' ? `<div class="flex h-full select-none pt-2 justify-between">
-              <p data-media-entry-card-title-section-year-season="true" class="text-sm text-white gap-1 items-center line-clamp-1 overflow-hidden max-h-[20px] max-w-[80px]">${chapter}</p>
-              <p data-media-entry-card-title-section-year-season="true" class="text-sm text-[#ffffff66] gap-1 items-center">${time}</p>
+              <p data-media-entry-card-title-section-year-season="true" class="text-xs lg:text-sm text-white gap-1 items-center line-clamp-1 overflow-hidden max-h-[20px] max-w-[80px]">${chapter}</p>
+              <p data-media-entry-card-title-section-year-season="true" class="text-xs lg:text-sm text-[#ffffff66] gap-1 items-center">${time}</p>
             </div>` : ''}
         </div>
         `;
